@@ -26,7 +26,8 @@ import TextField, { isEdited as textFieldIsEdited } from '@bpmn-io/properties-pa
  */
 export function TimerProps(props) {
   const {
-    element
+    element,
+    descriptions = {}
   } = props;
 
   const businessObject = getBusinessObject(element),
@@ -49,20 +50,26 @@ export function TimerProps(props) {
   if (onlySupportDuration) {
     entries.push({
       id: 'timerEventDefinitionDurationValue',
-      component: <TimerEventDefinitionDurationValue element={ element } />,
+      component: <TimerEventDefinitionDurationValue
+        element={ element }
+        description={ descriptions.timerEventDefinitionDurationValue } />,
       isEdited: textFieldIsEdited
     });
   } else {
     entries.push({
       id: 'timerEventDefinitionType',
-      component: <TimerEventDefinitionType element={ element } />,
+      component: <TimerEventDefinitionType
+        element={ element }
+        description={ descriptions.timerEventDefintionType } />,
       isEdited: selectIsEdited
     });
 
     if (timerEventDefinitionType) {
       entries.push({
         id: 'timerEventDefinitionValue',
-        component: <TimerEventDefinitionValue element={ element } />,
+        component: <TimerEventDefinitionValue
+          element={ element }
+          description={ descriptions.timerEventDefintionValue } />,
         isEdited: textFieldIsEdited
       });
     }
@@ -157,7 +164,8 @@ function TimerEventDefinitionType(props) {
     label: translate('Type'),
     getValue,
     setValue,
-    getOptions
+    getOptions,
+    description: props.description
   });
 }
 
@@ -204,7 +212,7 @@ function TimerEventDefinitionValue(props) {
     getValue,
     setValue,
     debounce,
-    description: getTimerEventDefinitionValueDescription(timerEventDefinitionType, translate)
+    description: props.description
   });
 }
 
@@ -284,7 +292,7 @@ function TimerEventDefinitionDurationValue(props) {
     getValue,
     setValue,
     debounce,
-    description: getTimerEventDefinitionValueDescription('timeDuration', translate)
+    description: props.description
   });
 }
 

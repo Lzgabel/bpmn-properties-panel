@@ -1,3 +1,7 @@
+import {
+  TimerDescProps
+} from './properties';
+
 const LOW_PRIORITY = 400;
 
 export default class ZeebeHelptextProvider {
@@ -11,7 +15,7 @@ export default class ZeebeHelptextProvider {
   getGroups(element) {
     return (groups) => {
 
-      // here we will update what needs to be updated
+      addTimerDescriptions(groups, element);
 
       return groups;
     };
@@ -22,8 +26,19 @@ export default class ZeebeHelptextProvider {
 ZeebeHelptextProvider.$inject = [ 'propertiesPanel', 'injector' ];
 
 
+function addTimerDescriptions(groups, element) {
+  const timerEventGroup = findGroup(groups, 'timer');
+
+  if (!timerEventGroup) {
+    return;
+  }
+
+  timerEventGroup.entries = TimerDescProps({ element });
+}
+
+
 // helper /////////////////////
 
-/*function findGroup(groups, id) {
+function findGroup(groups, id) {
   return groups.find(g => g.id === id);
-}*/
+}

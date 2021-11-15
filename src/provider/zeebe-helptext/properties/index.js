@@ -1,0 +1,1 @@
+export { TimerDescProps } from './TimerDescProps';
