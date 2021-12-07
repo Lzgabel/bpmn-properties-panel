@@ -46,6 +46,11 @@ export function MultiInstanceProps(props) {
       id: 'multiInstance-outputElement',
       component: <OutputElement element={ element } />,
       isEdited: defaultIsEdited
+    },
+    {
+    id: 'multiInstance-completionCondition',
+    component: <CompletionCondition element={ element } />,
+    isEdited: defaultIsEdited
     }
   ];
 }
@@ -163,6 +168,53 @@ function OutputElement(props) {
 }
 
 
+function CompletionCondition(props) {
+  const {
+    element
+  } = props;
+
+  const commandStack = useService('commandStack');
+  const bpmnFactory = useService('bpmnFactory');
+  const translate = useService('translate');
+  const debounce = useService('debounceInput');
+
+  const getValue = () => {
+    const completionCondition = getCompletionCondition(element);
+    return completionCondition && completionCondition.get('body');
+  };
+
+  const setValue = (value) => {
+    if (value && value !== '') {
+      const loopCharacteristics = getLoopCharacteristics(element);
+      const completionCondition = createElement(
+        'bpmn:FormalExpression',
+        { body: value },
+        loopCharacteristics,
+        bpmnFactory
+      );
+      setCompletionCondition(element, commandStack, completionCondition);
+    } else {
+      setCompletionCondition(element, commandStack, undefined);
+    }
+  };
+
+  const validate = (value) => {
+    if (value && /^(?!=)/.test(value)) {
+      return translate('The completion condition expects FEEL-expression to be prefixed by \'=\'');
+    }
+  };
+
+  return TextField({
+    element,
+    id: 'multiInstance-completionCondition',
+    label: translate('Completion condition'),
+    getValue,
+    setValue,
+    validate,
+    debounce
+  });
+}
+
 // helper ///////////////////////
 
 function getLoopCharacteristics(element) {
@@ -178,6 +230,20 @@ function getZeebeLoopCharacteristics(loopCharacteristics) {
 
 function supportsMultiInstances(element) {
   return !!getLoopCharacteristics(element);
+}
+
+function getCompletionCondition(element) {
+  return getLoopCharacteristics(element).get('completionCondition');
+}
+
+function setCompletionCondition(element, commandStack, completionCondition = undefined) {
+  commandStack.execute('properties-panel.update-businessobject', {
+    element,
+    businessObject: getLoopCharacteristics(element),
+    properties: {
+      completionCondition
+    }
+  });
 }
 
 function getProperty(element, propertyName) {
